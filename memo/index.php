@@ -1,6 +1,7 @@
 <?php
 
-$db = new mysqli('localhost', 'root', 'root', 'mydb');
+require_once('dbconnect.php');
+
 $memos = $db->query('select * from memos order by id desc');
 if (!$memos) {
     die($db->error);
