@@ -11,6 +11,7 @@ $ret = $stmt->execute();
 
 if ($ret) :
     echo '登録されました';
+    echo '<br>→<a href="index.php">トップへ戻る</a>';
 else :
     echo $db->error;
 endif;
