@@ -16,5 +16,5 @@ if (!$result) {
     die($db->error);
 }
 
-//実行がうまくいったら詳細画面に移動する。そのときに指定されたidをURLにパラメータとして渡す
+//updateの実行がうまくいったら詳細画面に移動する。そのときに指定されたidをURLにパラメータとして渡す
 header('Location: memo.php?id=' . $id);

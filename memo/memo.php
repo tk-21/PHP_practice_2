@@ -35,7 +35,9 @@
     </div>
 
     <p>
+        <!-- URLにidをパラメータとして渡して、それぞれのページに移動させる -->
         <a href="update.php?id=<?php echo $id; ?>">編集する</a> |
+        <a href="delete.php?id=<?php echo $id; ?>">削除する</a> |
         <a href="/memo">一覧へ</a>
     </p>
 </body>
