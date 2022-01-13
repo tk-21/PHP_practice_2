@@ -1,3 +1,10 @@
+<?php
+
+session_start();
+// ここで$_SESSIONの値を受け取っている
+var_dump($_SESSION['form']);
+?>
+
 <!DOCTYPE html>
 <html lang="ja">
 

@@ -1,5 +1,9 @@
 <?php
+session_start();
+
 // noticeやwarningは初期化やissetをきちんとすることで抑えられる
+
+// 入力された値を次のページに渡すため、値を配列に入れておく
 // 配列の中の値を初期化しておくことで、初回表示したときのnoticeを抑える
 $form = [
     'name' => '',
@@ -32,6 +36,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error['password'] = 'blank';
     } elseif (strlen($form['password']) < 4) { //パスワードが4文字以下であれば
         $error['password'] = 'length';
+    }
+
+    // 画像のチェック
+    // 添付ファイルは$_FILESというグローバル変数に入る
+    $image = $_FILES['image'];
+    // ファイルの名前が空でない、かつエラーが起こっていなければ
+    if ($image['name'] !== '' && $image['error'] === 0) {
+        // 一時的なnameのファイルタイプを取得する
+        // mime_content_typeを使うと何の種類のファイルがアップロードされたのか確認できる
+        $type = mime_content_type($image['tmp_name']);
+        // ファイルがpngでもjpegでもなければ
+        if ($type !== 'image/png' && $type !== 'image/jpeg') {
+            // エラーを記録する
+            $error['image'] = 'type';
+        }
+    }
+    // エラーが起こっていないとき
+    if (empty($error)) {
+        // headerで次の画面に渡る場合には、$_SESSIONに値を渡す
+        $_SESSION['form'] = $form;
+
+        // 画像のファイル名が空でなかったら、
+        if ($image['name'] !== '') {
+            // ファイル名の先頭に日時を設定
+            $filename = date('YmdHis') . '_' . $image['name'];
+            // ファイルをテンポラリーから正式な場所に移動する
+            if (!move_uploaded_file($image['tmp_name'], '../member_picture/' . $filename)) {
+                die('ファイルのアップロードに失敗しました');
+            }
+
+            // ファイル名をセッションに記録
+            $_SESSION['form']['image'] = $filename;
+        } else {
+            $_SESSION['form']['image'] = '';
+        }
+
+        header('Location: check.php');
+        exit();
     }
 }
 
@@ -95,7 +137,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <dt>写真など</dt>
                     <dd>
                         <input type="file" name="image" size="35" value="" />
-                        <p class="error">* 写真などは「.png」または「.jpg」の画像を指定してください</p>
+                        <?php if (isset($error['image']) && $error['image'] === 'type') : ?>
+                            <p class="error">* 写真などは「.png」または「.jpg」の画像を指定してください</p>
+                        <?php endif; ?>
                         <p class="error">* 恐れ入りますが、画像を改めて指定してください</p>
                     </dd>
                 </dl>
