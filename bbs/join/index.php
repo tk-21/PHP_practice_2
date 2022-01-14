@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once('../library.php');
 
 // noticeやwarningは初期化やissetをきちんとすることで抑えられる
 
@@ -11,11 +12,6 @@ $form = [
     'password' => ''
 ];
 $error = [];
-
-function h($value)
-{
-    return htmlspecialchars($value, ENT_QUOTES);
-}
 
 // フォームが送信されたとき（POSTで渡ってきたとき）に実行される
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
