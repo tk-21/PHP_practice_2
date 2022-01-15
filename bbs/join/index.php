@@ -6,11 +6,16 @@ require_once('../library.php');
 
 // 入力された値を次のページに渡すため、値を配列に入れておく
 // 配列の中の値を初期化しておくことで、初回表示したときのnoticeを抑える
-$form = [
-    'name' => '',
-    'email' => '',
-    'password' => ''
-];
+if (isset($_GET['action']) && $_GET['action'] === 'rewrite' && isset($_SESSION['form'])) {
+    $form = $_SESSION['form'];
+} else {
+    $form = [
+        'name' => '',
+        'email' => '',
+        'password' => ''
+    ];
+}
+
 $error = [];
 
 // フォームが送信されたとき（POSTで渡ってきたとき）に実行される
