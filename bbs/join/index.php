@@ -4,11 +4,13 @@ require_once('../library.php');
 
 // noticeやwarningは初期化やissetをきちんとすることで抑えられる
 
-// 入力された値を次のページに渡すため、値を配列に入れておく
-// 配列の中の値を初期化しておくことで、初回表示したときのnoticeを抑える
+// URLパラメータにrewrite属性が入っていたら、入力内容を再現する（書き直すから戻ってきたときの処理）
 if (isset($_GET['action']) && $_GET['action'] === 'rewrite' && isset($_SESSION['form'])) {
+    // セッションに入っている値を復元する
     $form = $_SESSION['form'];
 } else {
+    // 入力された値を次のページに渡すため、値を配列に入れておく
+    // 配列の中の値を初期化しておくことで、初回表示したときのnoticeを抑える
     $form = [
         'name' => '',
         'email' => '',
@@ -29,6 +31,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $form['email'] = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
     if ($form['email'] === '') {
         $error['email'] = 'blank';
+    } else {
+        // メールアドレスが重複していないかをチェックする処理
+        $db = dbconnect();
+        $stmt = $db->prepare('select count(*) from members where email=?');
+        if (!$stmt) {
+            die($db->error);
+        }
+        $stmt->bind_param('s', $form['email']);
+        $success = $stmt->execute();
+        if (!$success) {
+            die($db->error);
+        }
+        // $cntに入ってくる数で重複しているかどうかをチェックできる
+        $stmt->bind_result($cnt); //結果を$cntに代入して受け取る
+        $stmt->fetch(); //それを取り出す
+
+        if ($cnt > 0) {
+            $error['email'] = 'duplicate';
+        }
     }
 
     $form['password'] = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
@@ -122,7 +143,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php if (isset($error['email']) && $error['email'] === 'blank') : ?>
                             <p class="error">* メールアドレスを入力してください</p>
                         <?php endif; ?>
-                        <p class="error">* 指定されたメールアドレスはすでに登録されています</p>
+                        <?php if (isset($error['email']) && $error['email'] === 'duplicate') : ?>
+                            <p class="error">* 指定されたメールアドレスはすでに登録されています</p>
+                        <?php endif; ?>
 
                     <dt>パスワード<span class="required">必須</span></dt>
                     <dd>

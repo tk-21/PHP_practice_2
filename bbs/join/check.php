@@ -10,24 +10,19 @@ if (isset($_SESSION['form'])) {
 	// セッションを使って値を行き来させることができる
 	$form = $_SESSION['form'];
 } else {
-	// 直接呼び出された場合は正しくないので、index.phpに移動させる
+	// 直接呼び出された場合（セッションに値が入っていない場合）は正しくないので、index.phpに移動させる
 	header('Location: index.php');
 	exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-	// ここでDBに接続する
-	$db = new mysqli('localhost', 'root', 'root', 'mini_bbs');
-	if (!$db) {
-		die($db->error);
-	}
-
+	$db = dbconnect();//DB接続
 	$stmt = $db->prepare('insert into members (name, email, password, picture) VALUES (?, ?, ?, ?)');
 	if (!$stmt) {
 		die($db->error);
 	}
 
-	// パスワードの暗号化をしてからDBに登録する
+	// パスワードは暗号化をしてからDBに登録する
 	$password = password_hash($form['password'], PASSWORD_DEFAULT);
 	$stmt->bind_param('ssss', $form['name'], $form['email'], $password, $form['image']);
 	$success = $stmt->execute();
@@ -76,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 						<img src="../member_picture/<?php echo h($form['image']); ?>" width="100" alt="" />
 					</dd>
 				</dl>
+				<!-- URLパラメータに値を付ける -->
 				<div><a href="index.php?action=rewrite">&laquo;&nbsp;書き直す</a> | <input type="submit" value="登録する" /></div>
 			</form>
 		</div>
