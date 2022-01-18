@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </p>
                 </div>
             </form>
-            
+
             <!-- whereでリレーションをはっている -->
             <?php $stmt = $db->prepare('select p.id, p.member_id, p.message, p.created, m.name, m.picture from posts p, members m where m.id=p.member_id order by id desc');
             if (!$stmt) {
@@ -87,7 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endif; ?>
 
                     <p><?php echo h($message); ?><span class="name">（<?php echo h($name); ?>）</span></p>
-                    <p class="day"><a href="view.php?id="><?php echo h($created); ?></a>
+                    <!-- 投稿のURLパラメータにidをつける -->
+                    <p class="day"><a href="view.php?id=<?php echo h($id); ?>"><?php echo h($created); ?></a>
                         [<a href="delete.php?id=" style="color: #F33;">削除</a>]
                     </p>
                 </div>
