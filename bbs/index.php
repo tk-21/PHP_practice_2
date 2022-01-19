@@ -89,7 +89,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p><?php echo h($message); ?><span class="name">（<?php echo h($name); ?>）</span></p>
                     <!-- 投稿のURLパラメータにidをつける -->
                     <p class="day"><a href="view.php?id=<?php echo h($id); ?>"><?php echo h($created); ?></a>
-                        [<a href="delete.php?id=" style="color: #F33;">削除</a>]
+                    <!-- ログインしている人のみ削除ボタンを表示する -->
+                        <?php if ($_SESSION['id'] === $member_id) : ?>
+                            <!-- 削除ボタンのURLパラメータにidをつける -->
+                            [<a href="delete.php?id=<?php echo h($id); ?>" style="color: #F33;">削除</a>]
+                        <?php endif; ?>
                     </p>
                 </div>
             <?php endwhile; ?>
